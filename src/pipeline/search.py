@@ -1,16 +1,7 @@
 from src.api.ticketmaster import get_events
+from src.config.favorites import FAVORITE_BANDS
 
-
-favorite_bands = [
-    "The Sisters of Mercy",
-    "Ghost",
-    "Lacrimosa",
-    "In This Moment",
-    "Dimmu Borgir",
-    "Lacuna Coil"
-]
-
-favorite_bands_lower = {band.lower() for band in favorite_bands}
+favorite_bands_lower = {band.lower() for band in FAVORITE_BANDS}
 
 events = get_events()
 
