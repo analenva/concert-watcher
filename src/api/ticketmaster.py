@@ -5,28 +5,37 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_KEY = os.getenv("TICKETMASTER_API_KEY")
+API_URL = "https://app.ticketmaster.com/discovery/v2"
+
+
+def _request(endpoint, params):
+    if not API_KEY:
+        raise RuntimeError(
+            "TICKETMASTER_API_KEY is missing. Add it to a .env file in the project root."
+        )
+
+    response = requests.get(
+        f"{API_URL}/{endpoint}",
+        params={"apikey": API_KEY, **params},
+        timeout=30,
+    )
+    response.raise_for_status()
+    return response.json()
 
 
 def get_events():
-    url = "https://app.ticketmaster.com/discovery/v2/events.json"
-
     all_events = []
     page = 0
 
     while True:
         params = {
-            "apikey": API_KEY,
             "countryCode": "SE",
             "classificationName": "Music",
             "size": 100,
             "page": page
         }
 
-        response = requests.get(url, params=params)
-
-        print(response.status_code)
-
-        data = response.json()
+        data = _request("events.json", params)
 
         if "_embedded" not in data:
             break
@@ -45,19 +54,12 @@ def get_events():
 
 
 def find_attraction(artist):
-    url = "https://app.ticketmaster.com/discovery/v2/attractions.json"
-
     params = {
-        "apikey": API_KEY,
         "keyword": artist,
         "size": 10
     }
 
-    response = requests.get(url, params=params)
-
-    print(response.status_code)
-
-    data = response.json()
+    data = _request("attractions.json", params)
 
     if "_embedded" not in data:
         return None
